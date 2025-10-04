@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Climbing Board</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      text-align: center;
+    }
+    .board {
+      position: relative;
+      display: inline-block;
+    }
+    .board img {
+      max-width: 90vw;
+      height: auto;
+    }
+    .cell {
+      position: absolute;
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      border: 2px solid #333;
+      opacity: 0.8;
+      cursor: pointer;
+      transform: translate(-50%, -50%);
+    }
+    .off   { background: transparent; border: 2px solid #aaa; }
+    .hand  { background: blue; }
+    .foot  { background: green; }
+    .start { background: red; }
+    .end   { background: gold; }
+  </style>
+</head>
+<body>
+  <h1>Climbing Board</h1>
+
+  <div class="board">
+    <img src="{{ url_for('static', filename='wall.jpg') }}">
+    {% for r in range(grid|length) %}
+      {% for c in range(grid[0]|length) %}
+        <div class="cell {{ states[grid[r][c]] }}"
+             data-row="{{ r }}" data-col="{{ c }}"
+             style="top: {{ (r+0.5) * (100 / grid|length) }}%;
+                    left: {{ (c+0.5) * (100 / grid[0]|length) }}%;">
+        </div>
+      {% endfor %}
+    {% endfor %}
+  </div>
+
+  <div style="margin-top:20px;">
+    <input id="patternName" placeholder="Pattern name">
+    <button onclick="savePattern()">Save</button>
+    <select id="patternSelect">
+      {% for name in patterns %}
+        <option value="{{ name }}">{{ name }}</option>
+      {% endfor %}
+    </select>
+    <button onclick="loadPattern()">Load</button>
+  </div>
+
+<script>
+document.querySelectorAll(".cell").forEach(cell => {
+  cell.addEventListener("click", () => {
+    const r = cell.dataset.row, c = cell.dataset.col;
+    fetch("/set_cell", {
+      method: "POST",
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify({row: parseInt(r), col: parseInt(c)})
+    })
+    .then(res => res.json())
+    .then(data => {
+      cell.className = "cell " + data.name;
+    });
+  });
+});
+
+function savePattern() {
+  const name = document.getElementById("patternName").value;
+  if (!name) { alert("Enter a pattern name!"); return; }
+  fetch("/save", {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({name})
+  }).then(res => res.json())
+    .then(data => {
+      let sel = document.getElementById("patternSelect");
+      sel.innerHTML = "";
+      data.patterns.forEach(p => {
+        let opt = document.createElement("option");
+        opt.value = p; opt.textContent = p;
+        sel.appendChild(opt);
+      });
+    });
+}
+
+function loadPattern() {
+  const name = document.getElementById("patternSelect").value;
+  fetch("/load", {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({name})
+  }).then(res => res.json())
+    .then(data => {
+      if (data.grid) {
+        document.querySelectorAll(".cell").forEach(cell => {
+          const r = parseInt(cell.dataset.row), c = parseInt(cell.dataset.col);
+          const state = data.grid[r][c];
+          const stateNames = {{ states|tojson }};
+          cell.className = "cell " + stateNames[state];
+        });
+      }
+    });
+}
+</script>
+</body>
+</html>
