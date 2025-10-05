@@ -16,5 +16,5 @@ python -m venv .venv
 
 Start the board app
 ```
-./app.py
+sudo ./app.py
 ```

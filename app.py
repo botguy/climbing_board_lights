@@ -4,6 +4,11 @@ from flask import Flask, render_template, request, jsonify
 import json
 import os
 
+import neopixel
+import board
+
+
+pixel = neopixel.NeoPixel(board.D18, 50, pixel_order=neopixel.RGB)
 app = Flask(__name__)
 
 ROWS, COLS = 12, 7
@@ -50,4 +55,5 @@ def load_pattern():
     return jsonify({"error": "not found"}), 404
 
 if __name__ == "__main__":
+    pixel[0] = (255, 255, 255)
     app.run(host="0.0.0.0", port=5000, debug=True)
