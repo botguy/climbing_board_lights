@@ -7,12 +7,15 @@ import os
 import neopixel
 import board
 
-
-pixel = neopixel.NeoPixel(board.D18, 50, pixel_order=neopixel.RGB)
-app = Flask(__name__)
-
+# Configuration constants
+NUM_LEDS = 100
+LED_PIN = board.D18
 ROWS, COLS = 12, 7
 STATE_NAMES = ["off", "hand", "foot", "start", "end"]
+
+assert ROWS*COLS <= NUM_LEDS
+led = neopixel.NeoPixel(LED_PIN, NUM_LEDS, pixel_order=neopixel.RGB)
+app = Flask(__name__)
 
 # Initialize grid
 grid = [[0 for _ in range(COLS)] for _ in range(ROWS)]
@@ -55,5 +58,5 @@ def load_pattern():
     return jsonify({"error": "not found"}), 404
 
 if __name__ == "__main__":
-    pixel[0] = (255, 255, 255)
-    app.run(host="0.0.0.0", port=5000, debug=True)
+    led[0] = (255, 255, 255)
+    app.run(host="0.0.0.0", port=80, debug=True)
