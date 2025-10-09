@@ -56,12 +56,11 @@
   <div style="margin-top:20px;">
     <input id="problemName" placeholder="Problem name">
     <button onclick="saveProblem()">Save</button>
-    <select id="problemSelect">
+    <select id="problemSelect" onchange="loadProblem()">
       {% for name in problems %}
         <option value="{{ name }}">{{ name }}</option>
       {% endfor %}
     </select>
-    <button onclick="loadProblem()">Load</button>
   </div>
 
 <script>
