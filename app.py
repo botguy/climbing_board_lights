@@ -27,16 +27,16 @@ app = Flask(__name__)
 # Initialize grid
 grid = [[0 for _ in range(COLS)] for _ in range(ROWS)]
 
-PATTERN_FILE = "patterns.json"
-if os.path.exists(PATTERN_FILE):
-    with open(PATTERN_FILE, "r") as f:
-        patterns = json.load(f)
+PROBLEM_FILE = "problems.json"
+if os.path.exists(PROBLEM_FILE):
+    with open(PROBLEM_FILE, "r") as f:
+        problems = json.load(f)
 else:
-    patterns = {}
+    problems = {}
 
 @app.route("/")
 def index():
-    return render_template("index.html", grid=grid, states=STATE_NAMES, patterns=list(patterns.keys()))
+    return render_template("index.html", grid=grid, states=STATE_NAMES, problems=list(problems.keys()))
 
 @app.route("/set_cell", methods=["POST"])
 def set_cell():
@@ -46,21 +46,21 @@ def set_cell():
     return jsonify({"state": grid[r][c], "name": STATE_NAMES[grid[r][c]]})
 
 @app.route("/save", methods=["POST"])
-def save_pattern():
+def save_problem():
     data = request.json
     name = data["name"]
-    patterns[name] = grid
-    with open(PATTERN_FILE, "w") as f:
-        json.dump(patterns, f, indent=2)
-    return jsonify({"status": "saved", "patterns": list(patterns.keys())})
+    problems[name] = grid
+    with open(PROBLEM_FILE, "w") as f:
+        json.dump(problems, f, indent=2)
+    return jsonify({"status": "saved", "problems": list(problems.keys())})
 
 @app.route("/load", methods=["POST"])
-def load_pattern():
+def load_problem():
     data = request.json
     name = data["name"]
-    if name in patterns:
+    if name in problems:
         global grid
-        grid = patterns[name]
+        grid = problems[name]
         return jsonify({"grid": grid})
     return jsonify({"error": "not found"}), 404
 

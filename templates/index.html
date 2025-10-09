@@ -50,14 +50,14 @@
   </div>
 
   <div style="margin-top:20px;">
-    <input id="patternName" placeholder="Pattern name">
-    <button onclick="savePattern()">Save</button>
-    <select id="patternSelect">
-      {% for name in patterns %}
+    <input id="problemName" placeholder="Problem name">
+    <button onclick="saveProblem()">Save</button>
+    <select id="problemSelect">
+      {% for name in problems %}
         <option value="{{ name }}">{{ name }}</option>
       {% endfor %}
     </select>
-    <button onclick="loadPattern()">Load</button>
+    <button onclick="loadProblem()">Load</button>
   </div>
 
 <script>
@@ -76,18 +76,18 @@ document.querySelectorAll(".cell").forEach(cell => {
   });
 });
 
-function savePattern() {
-  const name = document.getElementById("patternName").value;
-  if (!name) { alert("Enter a pattern name!"); return; }
+function saveProblem() {
+  const name = document.getElementById("problemName").value;
+  if (!name) { alert("Enter a problem name!"); return; }
   fetch("/save", {
     method: "POST",
     headers: {"Content-Type": "application/json"},
     body: JSON.stringify({name})
   }).then(res => res.json())
     .then(data => {
-      let sel = document.getElementById("patternSelect");
+      let sel = document.getElementById("problemSelect");
       sel.innerHTML = "";
-      data.patterns.forEach(p => {
+      data.problems.forEach(p => {
         let opt = document.createElement("option");
         opt.value = p; opt.textContent = p;
         sel.appendChild(opt);
@@ -95,8 +95,8 @@ function savePattern() {
     });
 }
 
-function loadPattern() {
-  const name = document.getElementById("patternSelect").value;
+function loadProblem() {
+  const name = document.getElementById("problemSelect").value;
   fetch("/load", {
     method: "POST",
     headers: {"Content-Type": "application/json"},
