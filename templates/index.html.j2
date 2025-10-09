@@ -36,6 +36,10 @@
 <body>
   <h1>Climbing Board</h1>
 
+  <div style="margin-top:20px;">
+    <button onclick="clearProblem()">Clear</button>
+  </div>
+
   <div class="board">
     <img src="{{ url_for('static', filename='wall.jpg') }}">
     {% for r in range(grid|length) %}
@@ -102,17 +106,29 @@ function loadProblem() {
     headers: {"Content-Type": "application/json"},
     body: JSON.stringify({name})
   }).then(res => res.json())
-    .then(data => {
-      if (data.grid) {
-        document.querySelectorAll(".cell").forEach(cell => {
-          const r = parseInt(cell.dataset.row), c = parseInt(cell.dataset.col);
-          const state = data.grid[r][c];
-          const stateNames = {{ states|tojson }};
-          cell.className = "cell " + stateNames[state];
-        });
-      }
-    });
+    .then(data => setProblem(data));
 }
+
+function clearProblem() {
+  fetch("/clear", {
+    method: "POST",
+    headers: {"Content-Type": "application/json"}
+  }).then(res => res.json())
+    .then(data => setProblem(data));
+}
+
+function setProblem(data)
+{
+  if (data.grid) {
+    document.querySelectorAll(".cell").forEach(cell => {
+      const r = parseInt(cell.dataset.row), c = parseInt(cell.dataset.col);
+      const state = data.grid[r][c];
+      const stateNames = {{ states|tojson }};
+      cell.className = "cell " + stateNames[state];
+    });
+  }
+}
+
 </script>
 </body>
 </html>

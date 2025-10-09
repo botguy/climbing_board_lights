@@ -36,7 +36,7 @@ else:
 
 @app.route("/")
 def index():
-    return render_template("index.html", grid=grid, states=STATE_NAMES, problems=list(problems.keys()))
+    return render_template("index.html.j2", grid=grid, states=STATE_NAMES, problems=list(problems.keys()))
 
 @app.route("/set_cell", methods=["POST"])
 def set_cell():
@@ -63,6 +63,12 @@ def load_problem():
         grid = problems[name]
         return jsonify({"grid": grid})
     return jsonify({"error": "not found"}), 404
+
+@app.route("/clear", methods=["POST"])
+def clear_problem():
+    global grid
+    grid = [[0 for _ in range(COLS)] for _ in range(ROWS)]
+    return jsonify({"grid": grid})
 
 def diag_rainbow():
     ''' configures LEDs with a diagonal rainbow '''
