@@ -27,7 +27,7 @@ LED_ROWS = ROWS
 LED_COLS = COLS + 1  # +1 since LEDS are on both sides of the holds
 assert LED_ROWS*LED_COLS <= NUM_LEDS
 led_strip = neopixel.NeoPixel(LED_PIN, NUM_LEDS, pixel_order=neopixel.RGB, auto_write=False)
-led_grid = PixelGrid(led_strip, LED_ROWS, LED_COLS)
+led_grid = PixelGrid(led_strip, LED_ROWS, LED_COLS, reverse_x=True, reverse_y=True, orientation='VERTICAL')
 
 app = Flask(__name__)
 
