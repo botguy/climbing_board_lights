@@ -37,7 +37,7 @@
   <h1>Climbing Board</h1>
 
   <div style="margin-top:20px;">
-    <button onclick="clearProblem()">Clear</button>
+    <button onclick="clearBoulder()">Clear</button>
   </div>
 
   <div class="board">
@@ -54,10 +54,10 @@
   </div>
 
   <div style="margin-top:20px;">
-    <input id="problemName" placeholder="Problem name">
-    <button onclick="saveProblem()">Save</button>
-    <select id="problemSelect" onchange="loadProblem()">
-      {% for name in problems %}
+    <input id="boulderName" placeholder="Boulder name">
+    <button onclick="saveBoulder()">Save</button>
+    <select id="boulderSelect" onchange="loadBoulder()">
+      {% for name in boulders %}
         <option value="{{ name }}">{{ name }}</option>
       {% endfor %}
     </select>
@@ -79,18 +79,18 @@ document.querySelectorAll(".cell").forEach(cell => {
   });
 });
 
-function saveProblem() {
-  const name = document.getElementById("problemName").value;
-  if (!name) { alert("Enter a problem name!"); return; }
+function saveBoulder() {
+  const name = document.getElementById("boulderName").value;
+  if (!name) { alert("Enter a boulder name!"); return; }
   fetch("/save", {
     method: "POST",
     headers: {"Content-Type": "application/json"},
     body: JSON.stringify({name})
   }).then(res => res.json())
     .then(data => {
-      let sel = document.getElementById("problemSelect");
+      let sel = document.getElementById("boulderSelect");
       sel.innerHTML = "";
-      data.problems.forEach(p => {
+      data.boulders.forEach(p => {
         let opt = document.createElement("option");
         opt.value = p; opt.textContent = p;
         sel.appendChild(opt);
@@ -98,25 +98,25 @@ function saveProblem() {
     });
 }
 
-function loadProblem() {
-  const name = document.getElementById("problemSelect").value;
+function loadBoulder() {
+  const name = document.getElementById("boulderSelect").value;
   fetch("/load", {
     method: "POST",
     headers: {"Content-Type": "application/json"},
     body: JSON.stringify({name})
   }).then(res => res.json())
-    .then(data => setProblem(data));
+    .then(data => setBoulder(data));
 }
 
-function clearProblem() {
+function clearBoulder() {
   fetch("/clear", {
     method: "POST",
     headers: {"Content-Type": "application/json"}
   }).then(res => res.json())
-    .then(data => setProblem(data));
+    .then(data => setBoulder(data));
 }
 
-function setProblem(data)
+function setBoulder(data)
 {
   if (data.grid) {
     document.querySelectorAll(".cell").forEach(cell => {

@@ -34,19 +34,19 @@ app = Flask(__name__)
 # Initialize grid
 grid = [[0 for _ in range(COLS)] for _ in range(ROWS)]
 
-PROBLEM_FILE = "problems.yml"
+BOULDERS_FILE = "boulders.yml"
 yaml = YAML()
 yaml.default_flow_style = None  # pretty prints 2d lists
-if os.path.exists(PROBLEM_FILE):
-    with open(PROBLEM_FILE, "r") as f:
-        problems = yaml.load(f)
+if os.path.exists(BOULDERS_FILE):
+    with open(BOULDERS_FILE, "r") as f:
+        boulders = yaml.load(f)
 else:
-    problems = {}
+    boulders = {}
 
 @app.route("/")
 def index():
     update_led_grid()
-    return render_template("index.html.j2", grid=grid, states=list(STATE_COLORS.keys()), problems=list(problems.keys()))
+    return render_template("index.html.j2", grid=grid, states=list(STATE_COLORS.keys()), boulders=list(boulders.keys()))
 
 @app.route("/set_cell", methods=["POST"])
 def set_cell():
@@ -57,27 +57,27 @@ def set_cell():
     return jsonify({"state": grid[r][c], "name": list(STATE_COLORS.keys())[grid[r][c]]})
 
 @app.route("/save", methods=["POST"])
-def save_problem():
+def save_boulder():
     data = request.json
     name = data["name"]
-    problems[name] = grid
-    with open(PROBLEM_FILE, "w") as f:
-        yaml.dump(problems, f)
-    return jsonify({"status": "saved", "problems": list(problems.keys())})
+    boulders[name] = grid
+    with open(BOULDERS_FILE, "w") as f:
+        yaml.dump(boulders, f)
+    return jsonify({"status": "saved", "boulders": list(boulders.keys())})
 
 @app.route("/load", methods=["POST"])
-def load_problem():
+def load_boulder():
     data = request.json
     name = data["name"]
-    if name in problems:
+    if name in boulders:
         global grid
-        grid = problems[name]
+        grid = boulders[name]
         update_led_grid()
         return jsonify({"grid": grid})
     return jsonify({"error": "not found"}), 404
 
 @app.route("/clear", methods=["POST"])
-def clear_problem():
+def clear_boulder():
     global grid
     grid = [[0 for _ in range(COLS)] for _ in range(ROWS)]
     update_led_grid()
