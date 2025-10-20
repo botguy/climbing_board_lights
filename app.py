@@ -5,6 +5,7 @@ from ruamel.yaml import YAML
 import os
 from colorsys import hsv_to_rgb
 from collections import OrderedDict
+from copy import deepcopy
 
 import neopixel
 import board
@@ -30,6 +31,7 @@ led_strip = neopixel.NeoPixel(LED_PIN, NUM_LEDS, pixel_order=neopixel.RGB, auto_
 led_grid = PixelGrid(led_strip, LED_ROWS, LED_COLS, reverse_x=True, reverse_y=True, orientation='VERTICAL')
 
 app = Flask(__name__)
+app.config["TEMPLATES_AUTO_RELOAD"] = True
 
 # Initialize grid
 grid = [[0 for _ in range(COLS)] for _ in range(ROWS)]
@@ -60,7 +62,8 @@ def set_cell():
 def save_boulder():
     data = request.json
     name = data["name"]
-    boulders[name] = grid
+    difficulty = data["difficulty"]
+    boulders[name] = {"difficulty": difficulty, "holds": deepcopy(grid)}
     with open(BOULDERS_FILE, "w") as f:
         yaml.dump(boulders, f)
     return jsonify({"status": "saved", "boulders": list(boulders.keys())})
@@ -71,9 +74,9 @@ def load_boulder():
     name = data["name"]
     if name in boulders:
         global grid
-        grid = boulders[name]
+        grid = boulders[name]["holds"]
         update_led_grid()
-        return jsonify({"grid": grid})
+        return jsonify({"grid": grid, "difficulty": boulders[name]["difficulty"]})
     return jsonify({"error": "not found"}), 404
 
 @app.route("/clear", methods=["POST"])

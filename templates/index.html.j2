@@ -55,6 +55,7 @@
 
   <div style="margin-top:20px;">
     <input id="boulderName" placeholder="Boulder name">
+    <input type="number" id="boulderDifficulty" placeholder="Difficulty" min="0">
     <button onclick="saveBoulder()">Save</button>
     <select id="boulderSelect" onchange="loadBoulder()">
       {% for name in boulders %}
@@ -80,12 +81,15 @@ document.querySelectorAll(".cell").forEach(cell => {
 });
 
 function saveBoulder() {
-  const name = document.getElementById("boulderName").value;
-  if (!name) { alert("Enter a boulder name!"); return; }
+  const postData = {
+    name: document.getElementById("boulderName").value,
+    difficulty: document.getElementById("boulderDifficulty").value
+  };
+  if (!postData.name || !postData.difficulty) { alert("Enter a boulder name and difficulty!"); return; }
   fetch("/save", {
     method: "POST",
     headers: {"Content-Type": "application/json"},
-    body: JSON.stringify({name})
+    body: JSON.stringify(postData)
   }).then(res => res.json())
     .then(data => {
       let sel = document.getElementById("boulderSelect");
