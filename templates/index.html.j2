@@ -56,7 +56,7 @@
   <div style="margin-top:20px;">
     <input id="boulderName" placeholder="Boulder name">
     <input type="number" id="boulderDifficulty" placeholder="Difficulty" min="0">
-    <button onclick="saveBoulder()">Save</button>
+    <button onclick="saveBoulder()" id="boulderSave">Save</button>
     <select id="boulderSelect" onchange="loadBoulder()">
       {% for name in boulders %}
         <option value="{{ name }}">{{ name }}</option>
@@ -77,6 +77,8 @@ document.querySelectorAll(".cell").forEach(cell => {
     .then(data => {
       cell.className = "cell " + data.name;
     });
+    document.getElementById("boulderDifficulty").value = "";
+    document.getElementById("boulderSave").disabled = false;
   });
 });
 
@@ -99,6 +101,7 @@ function saveBoulder() {
         opt.value = p; opt.textContent = p;
         sel.appendChild(opt);
       });
+      document.getElementById("boulderSave").disabled = true;
     });
 }
 
@@ -112,6 +115,7 @@ function loadBoulder() {
     .then(data => {
       setBoulder(data);
       document.getElementById("boulderDifficulty").value = data.difficulty;
+      document.getElementById("boulderSave").disabled = true;
     });
 }
 
@@ -123,6 +127,7 @@ function clearBoulder() {
     .then(data => {
       setBoulder(data);
       document.getElementById("boulderDifficulty").value = "";
+      document.getElementById("boulderSave").disabled = true;
     });
 }
 
