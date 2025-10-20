@@ -1,7 +1,7 @@
 #!/home/admin/climbing_wall/.venv/bin/python
 
 from flask import Flask, render_template, request, jsonify
-import json
+from ruamel.yaml import YAML
 import os
 from colorsys import hsv_to_rgb
 from collections import OrderedDict
@@ -34,10 +34,12 @@ app = Flask(__name__)
 # Initialize grid
 grid = [[0 for _ in range(COLS)] for _ in range(ROWS)]
 
-PROBLEM_FILE = "problems.json"
+PROBLEM_FILE = "problems.yml"
+yaml = YAML()
+yaml.default_flow_style = None  # pretty prints 2d lists
 if os.path.exists(PROBLEM_FILE):
     with open(PROBLEM_FILE, "r") as f:
-        problems = json.load(f)
+        problems = yaml.load(f)
 else:
     problems = {}
 
@@ -60,7 +62,7 @@ def save_problem():
     name = data["name"]
     problems[name] = grid
     with open(PROBLEM_FILE, "w") as f:
-        json.dump(problems, f, indent=2)
+        yaml.dump(problems, f)
     return jsonify({"status": "saved", "problems": list(problems.keys())})
 
 @app.route("/load", methods=["POST"])
