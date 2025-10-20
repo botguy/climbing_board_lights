@@ -113,7 +113,7 @@ function loadBoulder() {
     body: JSON.stringify({name})
   }).then(res => res.json())
     .then(data => {
-      setBoulder(data);
+      setHolds(data.holds);
       document.getElementById("boulderDifficulty").value = data.difficulty;
       document.getElementById("boulderSave").disabled = true;
     });
@@ -125,18 +125,18 @@ function clearBoulder() {
     headers: {"Content-Type": "application/json"}
   }).then(res => res.json())
     .then(data => {
-      setBoulder(data);
+      setHolds(data.holds);
       document.getElementById("boulderDifficulty").value = "";
       document.getElementById("boulderSave").disabled = true;
     });
 }
 
-function setBoulder(data)
+function setHolds(holds)
 {
-  if (data.holds) {
+  if (holds) {
     document.querySelectorAll(".cell").forEach(cell => {
       const r = parseInt(cell.dataset.row), c = parseInt(cell.dataset.col);
-      const state = data.holds[r][c];
+      const state = holds[r][c];
       const stateNames = {{ states|tojson }};
       cell.className = "cell " + stateNames[state];
     });
