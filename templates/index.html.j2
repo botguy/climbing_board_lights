@@ -42,12 +42,12 @@
 
   <div class="board">
     <img src="{{ url_for('static', filename='wall.jpg') }}">
-    {% for r in range(grid|length) %}
-      {% for c in range(grid[0]|length) %}
-        <div class="cell {{ states[grid[r][c]] }}"
+    {% for r in range(holds|length) %}
+      {% for c in range(holds[0]|length) %}
+        <div class="cell {{ states[holds[r][c]] }}"
              data-row="{{ r }}" data-col="{{ c }}"
-             style="top: {{ (r+0.5) * (100 / grid|length) }}%;
-                    left: {{ (c+0.5) * (100 / grid[0]|length) }}%;">
+             style="top: {{ (r+0.5) * (100 / holds|length) }}%;
+                    left: {{ (c+0.5) * (100 / holds[0]|length) }}%;">
         </div>
       {% endfor %}
     {% endfor %}
@@ -122,10 +122,10 @@ function clearBoulder() {
 
 function setBoulder(data)
 {
-  if (data.grid) {
+  if (data.holds) {
     document.querySelectorAll(".cell").forEach(cell => {
       const r = parseInt(cell.dataset.row), c = parseInt(cell.dataset.col);
-      const state = data.grid[r][c];
+      const state = data.holds[r][c];
       const stateNames = {{ states|tojson }};
       cell.className = "cell " + stateNames[state];
     });
