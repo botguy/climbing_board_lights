@@ -109,7 +109,10 @@ function loadBoulder() {
     headers: {"Content-Type": "application/json"},
     body: JSON.stringify({name})
   }).then(res => res.json())
-    .then(data => setBoulder(data));
+    .then(data => {
+      setBoulder(data);
+      document.getElementById("boulderDifficulty").value = data.difficulty;
+    });
 }
 
 function clearBoulder() {
@@ -117,7 +120,10 @@ function clearBoulder() {
     method: "POST",
     headers: {"Content-Type": "application/json"}
   }).then(res => res.json())
-    .then(data => setBoulder(data));
+    .then(data => {
+      setBoulder(data);
+      document.getElementById("boulderDifficulty").value = "";
+    });
 }
 
 function setBoulder(data)
