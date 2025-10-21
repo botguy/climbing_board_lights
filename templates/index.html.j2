@@ -11,7 +11,7 @@
       font-family: sans-serif;
       text-align: center;
     }
-    button, select, input {
+    button, select, input, label {
       font-size: 1rem;
       min-height: 44px;
       min-width: 44px;
@@ -75,6 +75,11 @@
         <option value="{{ name }}">{{ name }}</option>
       {% endfor %}
     </select>
+  </div>
+
+  <div style="margin-top:20px;">
+    <label for="brightness">Brightness:</label>
+    <input type="range" id="brightness" name="brightness" min="0" max="1" value="0.5", step="0.1", oninput="setBrightness()">
   </div>
 
 <script>
@@ -154,6 +159,16 @@ function setHolds(holds)
       cell.className = "cell " + stateNames[state];
     });
   }
+}
+
+function setBrightness()
+{
+  const brightness = document.getElementById("brightness").value;
+  fetch("/brightness", {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({brightness})
+  });
 }
 
 </script>

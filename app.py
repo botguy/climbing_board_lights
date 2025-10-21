@@ -85,6 +85,14 @@ def clear_boulder():
     update_led_grid()
     return jsonify({"holds": holds})
 
+@app.route("/brightness", methods=["POST"])
+def set_brightness():
+    data = request.json
+    led_strip.brightness = float(data["brightness"])
+    led_strip.show()
+    app.logger.debug(f'brightness: {led_strip.brightness}')
+    return jsonify({'status': 'success'}), 200
+
 def update_led_grid():
     led_strip.fill((0, 0, 0))
     state_color_indexed = list(STATE_COLORS.values())
