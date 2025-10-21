@@ -6,6 +6,7 @@ import os
 from colorsys import hsv_to_rgb
 from collections import OrderedDict
 from copy import deepcopy
+from pathlib import Path
 
 import neopixel
 import board
@@ -22,12 +23,26 @@ STATE_COLORS = OrderedDict([
     ("start", (255, 0, 0)),
     ("end", (255, 215, 0)),
 ])
+BOULDERS_FILE = "boulders.yml"
+CONFIG_FILE = Path("config.yml")
+
+yaml = YAML()
+yaml.default_flow_style = None  # pretty prints 2d lists
+
+# load config
+if CONFIG_FILE.exists():
+    with CONFIG_FILE.open('r') as f:
+        config = yaml.load(f)
+else:
+    config = {
+        'brightness': 0.8
+    }
 
 # setup LEDs
 LED_ROWS = ROWS
 LED_COLS = COLS + 1  # +1 since LEDS are on both sides of the holds
 assert LED_ROWS*LED_COLS <= NUM_LEDS
-led_strip = neopixel.NeoPixel(LED_PIN, NUM_LEDS, pixel_order=neopixel.RGB, auto_write=False)
+led_strip = neopixel.NeoPixel(LED_PIN, NUM_LEDS, pixel_order=neopixel.RGB, auto_write=False, brightness=config['brightness'])
 led_grid = PixelGrid(led_strip, LED_ROWS, LED_COLS, reverse_x=True, reverse_y=True, orientation='VERTICAL')
 
 app = Flask(__name__)
@@ -35,9 +50,6 @@ app = Flask(__name__)
 # Initialize holds
 holds = [[0 for _ in range(COLS)] for _ in range(ROWS)]
 
-BOULDERS_FILE = "boulders.yml"
-yaml = YAML()
-yaml.default_flow_style = None  # pretty prints 2d lists
 if os.path.exists(BOULDERS_FILE):
     with open(BOULDERS_FILE, "r") as f:
         boulders = yaml.load(f)
@@ -47,7 +59,7 @@ else:
 @app.route("/")
 def index():
     update_led_grid()
-    return render_template("index.html.j2", holds=holds, states=list(STATE_COLORS.keys()), boulders=list(boulders.keys()))
+    return render_template("index.html.j2", holds=holds, states=list(STATE_COLORS.keys()), boulders=list(boulders.keys()), config=config)
 
 @app.route("/set_cell", methods=["POST"])
 def set_cell():
@@ -90,7 +102,9 @@ def set_brightness():
     data = request.json
     led_strip.brightness = float(data["brightness"])
     led_strip.show()
-    app.logger.debug(f'brightness: {led_strip.brightness}')
+    config['brightness'] = led_strip.brightness
+    with CONFIG_FILE.open('w') as f:
+        yaml.dump(config, f)
     return jsonify({'status': 'success'}), 200
 
 def update_led_grid():
