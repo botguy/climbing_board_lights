@@ -22,22 +22,20 @@ def hsv(h, s, v) -> np.array:
 NUM_LEDS = 100
 LED_PIN = board.D18
 ROWS, COLS = 12, 7
-OFFSET_BRIGHTNESS = 0.1
-HOLD_BRIGHTNESS = 0.8
+OFFSET_BRIGHTNESS = 0.25
+HOLD_BRIGHTNESS = 0.5
 HOLD_COLORS = OrderedDict([
     ("off", hsv(0, 0, 0)),
-    ("hand", hsv(0/4, 1, HOLD_BRIGHTNESS)),
-    ("foot", hsv(1/4, 1, HOLD_BRIGHTNESS)),
-    ("start", hsv(2/4, 1, HOLD_BRIGHTNESS)),
-    ("end",hsv(3/4, 1, HOLD_BRIGHTNESS)),
+    ("hand", hsv(3/6, 1, HOLD_BRIGHTNESS)),
+    ("start_end", hsv(0/6, 1, HOLD_BRIGHTNESS)),
 ])
 ROW_OFFSET_COLORS = (
-    (0, hsv(1/8, 1, OFFSET_BRIGHTNESS)),
-    (-1, -hsv(1/8, 1, OFFSET_BRIGHTNESS)),
+    (0, hsv(1/6, 1, OFFSET_BRIGHTNESS)),
+    (-1, hsv(4/6, 1, OFFSET_BRIGHTNESS)),
 )
 COL_OFFSET_COLORS = (
-    (0, hsv(5/8, 1, OFFSET_BRIGHTNESS)),
-    (-1, -hsv(5/8, 1, OFFSET_BRIGHTNESS)),
+    (0, hsv(2/6, 1, OFFSET_BRIGHTNESS)),
+    (-1, hsv(5/6, 1, OFFSET_BRIGHTNESS)),
 )
 BOULDERS_FILE = "boulders.yml"
 CONFIG_FILE = Path("config.yml")
@@ -140,6 +138,7 @@ def update_led_grid():
             if adjacent_hold_colors:
                 # average and limit to allowable range
                 led_grid[led_r][led_c] = np.clip(np.average(adjacent_hold_colors, axis=0).astype(int) , 0, 255)
+                # app.logger.debug(f'led[{led_r}, {led_c}] = {led_grid[led_r][led_c]} . adjacent_hold_colors = {adjacent_hold_colors}')
             else:
                 led_grid[led_r][led_c] = HOLD_COLORS['off']
     led_strip.show()
