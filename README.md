@@ -9,7 +9,7 @@ sudo apt install python3-dev
 Setup virtual environment
 ```
 python -m venv .venv
-./.venv/bin/pip install flask rpi_ws281x adafruit-circuitpython-neopixel adafruit-circuitpython-led-animation ruamel.yaml
+./.venv/bin/pip install flask rpi_ws281x adafruit-circuitpython-neopixel adafruit-circuitpython-led-animation ruamel.yaml numpy
 ```
 
 # Run

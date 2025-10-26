@@ -7,22 +7,38 @@ from colorsys import hsv_to_rgb
 from collections import OrderedDict
 from copy import deepcopy
 from pathlib import Path
+import numpy as np
 
 import neopixel
 import board
 from adafruit_led_animation.grid import PixelGrid
 
+def hsv(h, s, v) -> np.array:
+    ''' converts floats h,s,v [0, 1] to ints r,g,b [0, 255] '''
+    rgb_floats = np.array(hsv_to_rgb(h, s, v))
+    return np.minimum(256*rgb_floats, 255).astype(int)
+
 # Configuration constants
 NUM_LEDS = 100
 LED_PIN = board.D18
 ROWS, COLS = 12, 7
+OFFSET_BRIGHTNESS = 0.1
+HOLD_BRIGHTNESS = 0.8
 STATE_COLORS = OrderedDict([
-    ("off", (0, 0, 0)),
-    ("hand", (0, 0, 255)),
-    ("foot", (0, 255, 0)),
-    ("start", (255, 0, 0)),
-    ("end", (255, 215, 0)),
+    ("off", hsv(0, 0, 0)),
+    ("hand", hsv(0/4, 1, HOLD_BRIGHTNESS)),
+    ("foot", hsv(1/4, 1, HOLD_BRIGHTNESS)),
+    ("start", hsv(2/4, 1, HOLD_BRIGHTNESS)),
+    ("end",hsv(3/4, 1, HOLD_BRIGHTNESS)),
 ])
+ROW_OFFSET_COLORS = (
+    (0, hsv(1/8, 1, OFFSET_BRIGHTNESS)),
+    (-1, -hsv(1/8, 1, OFFSET_BRIGHTNESS)),
+)
+COL_OFFSET_COLORS = (
+    (0, hsv(5/8, 1, OFFSET_BRIGHTNESS)),
+    (-1, -hsv(5/8, 1, OFFSET_BRIGHTNESS)),
+)
 BOULDERS_FILE = "boulders.yml"
 CONFIG_FILE = Path("config.yml")
 
@@ -108,21 +124,35 @@ def set_brightness():
     return jsonify({'status': 'success'}), 200
 
 def update_led_grid():
-    led_strip.fill((0, 0, 0))
-    state_color_indexed = list(STATE_COLORS.values())
-    for r, state_row in enumerate(holds):
-        for c, state_idx in enumerate(state_row):
-            led_grid[r][c] = state_color_indexed[state_idx]
+    hold_type_color_indexed = tuple(STATE_COLORS.items())
+    for led_r in range(LED_ROWS):
+        for led_c in range(LED_COLS):
+            # Set LED to the average of the adjacent holds
+            adjacent_hold_colors = []
+            for r_offset, r_color in ROW_OFFSET_COLORS:
+                for c_offset, c_color in COL_OFFSET_COLORS:
+                    hold_r = led_r + r_offset
+                    hold_c = led_c + c_offset
+                    if 0 <= hold_r < ROWS and 0 <= hold_c < COLS:
+                        hold_type, hold_color = hold_type_color_indexed[holds[hold_r][hold_c]]
+                        if hold_type != 'off':
+                            adjacent_hold_colors.append(hold_color + r_color + c_color)
+            if adjacent_hold_colors:
+                # average and limit to allowable range
+                led_grid[led_r][led_c] = np.clip(np.average(adjacent_hold_colors, axis=0).astype(int) , 0, 255)
+            else:
+                led_grid[led_r][led_c] = STATE_COLORS['off']
     led_strip.show()
+
 
 def diag_rainbow():
     ''' configures LEDs with a diagonal rainbow '''
     for r in range(LED_ROWS):
         for c in range(LED_COLS):
             hue = (r*LED_ROWS + c*LED_COLS) / (LED_ROWS**2 + LED_COLS**2)  # inner product with diag vector
-            rgb = hsv_to_rgb(hue, 1, 1)
-            led_grid[r][c] = [int(255*rgb_i) for rgb_i in rgb]
+            led_grid[r][c] = hsv(hue, 1, 1)
     led_strip.show()
+
 
 if __name__ == "__main__":
     diag_rainbow()
