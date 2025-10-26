@@ -24,7 +24,7 @@ LED_PIN = board.D18
 ROWS, COLS = 12, 7
 OFFSET_BRIGHTNESS = 0.1
 HOLD_BRIGHTNESS = 0.8
-STATE_COLORS = OrderedDict([
+HOLD_COLORS = OrderedDict([
     ("off", hsv(0, 0, 0)),
     ("hand", hsv(0/4, 1, HOLD_BRIGHTNESS)),
     ("foot", hsv(1/4, 1, HOLD_BRIGHTNESS)),
@@ -75,15 +75,15 @@ else:
 @app.route("/")
 def index():
     update_led_grid()
-    return render_template("index.html.j2", hold_idxs=hold_idxs, states=list(STATE_COLORS.keys()), boulders=list(boulders.keys()), config=config)
+    return render_template("index.html.j2", hold_idxs=hold_idxs, hold_colors=HOLD_COLORS, boulders=list(boulders.keys()), config=config)
 
-@app.route("/set_cell", methods=["POST"])
-def set_cell():
+@app.route("/set_hold", methods=["POST"])
+def set_hold():
     data = request.json
     r, c = data["row"], data["col"]
-    hold_idxs[r][c] = (hold_idxs[r][c] + 1) % len(STATE_COLORS)  # cycle state
+    hold_idxs[r][c] = (hold_idxs[r][c] + 1) % len(HOLD_COLORS)  # cycle hold_idx
     update_led_grid()
-    return jsonify({"state": hold_idxs[r][c], "name": list(STATE_COLORS.keys())[hold_idxs[r][c]]})
+    return jsonify({"hold_idx": hold_idxs[r][c], "hold_type": list(HOLD_COLORS.keys())[hold_idxs[r][c]]})
 
 @app.route("/save", methods=["POST"])
 def save_boulder():
@@ -124,7 +124,7 @@ def set_brightness():
     return jsonify({'status': 'success'}), 200
 
 def update_led_grid():
-    hold_type_color_indexed = tuple(STATE_COLORS.items())
+    hold_type_color_indexed = tuple(HOLD_COLORS.items())
     for led_r in range(LED_ROWS):
         for led_c in range(LED_COLS):
             # Set LED to the average of the adjacent holds
@@ -141,7 +141,7 @@ def update_led_grid():
                 # average and limit to allowable range
                 led_grid[led_r][led_c] = np.clip(np.average(adjacent_hold_colors, axis=0).astype(int) , 0, 255)
             else:
-                led_grid[led_r][led_c] = STATE_COLORS['off']
+                led_grid[led_r][led_c] = HOLD_COLORS['off']
     led_strip.show()
 
 
