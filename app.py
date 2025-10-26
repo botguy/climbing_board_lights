@@ -64,7 +64,7 @@ led_grid = PixelGrid(led_strip, LED_ROWS, LED_COLS, reverse_x=True, reverse_y=Tr
 app = Flask(__name__)
 
 # Initialize holds
-holds = [[0 for _ in range(COLS)] for _ in range(ROWS)]
+hold_idxs = [[0 for _ in range(COLS)] for _ in range(ROWS)]
 
 if os.path.exists(BOULDERS_FILE):
     with open(BOULDERS_FILE, "r") as f:
@@ -75,22 +75,22 @@ else:
 @app.route("/")
 def index():
     update_led_grid()
-    return render_template("index.html.j2", holds=holds, states=list(STATE_COLORS.keys()), boulders=list(boulders.keys()), config=config)
+    return render_template("index.html.j2", hold_idxs=hold_idxs, states=list(STATE_COLORS.keys()), boulders=list(boulders.keys()), config=config)
 
 @app.route("/set_cell", methods=["POST"])
 def set_cell():
     data = request.json
     r, c = data["row"], data["col"]
-    holds[r][c] = (holds[r][c] + 1) % len(STATE_COLORS)  # cycle state
+    hold_idxs[r][c] = (hold_idxs[r][c] + 1) % len(STATE_COLORS)  # cycle state
     update_led_grid()
-    return jsonify({"state": holds[r][c], "name": list(STATE_COLORS.keys())[holds[r][c]]})
+    return jsonify({"state": hold_idxs[r][c], "name": list(STATE_COLORS.keys())[hold_idxs[r][c]]})
 
 @app.route("/save", methods=["POST"])
 def save_boulder():
     data = request.json
     name = data["name"]
     difficulty = data["difficulty"]
-    boulders[name] = {"difficulty": difficulty, "holds": deepcopy(holds)}
+    boulders[name] = {"difficulty": difficulty, "hold_idxs": deepcopy(hold_idxs)}
     with open(BOULDERS_FILE, "w") as f:
         yaml.dump(boulders, f)
     return jsonify({"status": "saved", "boulders": list(boulders.keys())})
@@ -100,18 +100,18 @@ def load_boulder():
     data = request.json
     name = data["name"]
     if name in boulders:
-        global holds
-        holds = boulders[name]["holds"]
+        global hold_idxs
+        hold_idxs = boulders[name]["hold_idxs"]
         update_led_grid()
-        return jsonify({"holds": holds, "difficulty": boulders[name]["difficulty"]})
+        return jsonify({"hold_idxs": hold_idxs, "difficulty": boulders[name]["difficulty"]})
     return jsonify({"error": "not found"}), 404
 
 @app.route("/clear", methods=["POST"])
 def clear_boulder():
-    global holds
-    holds = [[0 for _ in range(COLS)] for _ in range(ROWS)]
+    global hold_idxs
+    hold_idxs = [[0 for _ in range(COLS)] for _ in range(ROWS)]
     update_led_grid()
-    return jsonify({"holds": holds})
+    return jsonify({"hold_idxs": hold_idxs})
 
 @app.route("/brightness", methods=["POST"])
 def set_brightness():
@@ -134,7 +134,7 @@ def update_led_grid():
                     hold_r = led_r + r_offset
                     hold_c = led_c + c_offset
                     if 0 <= hold_r < ROWS and 0 <= hold_c < COLS:
-                        hold_type, hold_color = hold_type_color_indexed[holds[hold_r][hold_c]]
+                        hold_type, hold_color = hold_type_color_indexed[hold_idxs[hold_r][hold_c]]
                         if hold_type != 'off':
                             adjacent_hold_colors.append(hold_color + r_color + c_color)
             if adjacent_hold_colors:

@@ -1,5 +1,5 @@
-{% set rows = holds|length %}
-{% set cols = holds[0]|length %}
+{% set rows = hold_idxs|length %}
+{% set cols = hold_idxs[0]|length %}
 
 <!DOCTYPE html>
 <html>
@@ -57,7 +57,7 @@
     <img src="{{ url_for('static', filename='wall.jpg') }}">
     {% for r in range(rows) %}
       {% for c in range(cols) %}
-        <div class="cell {{ states[holds[r][c]] }}"
+        <div class="cell {{ states[hold_idxs[r][c]] }}"
              data-row="{{ r }}" data-col="{{ c }}"
              style="top: {{ (r+0.5) * (100 / rows) }}%;
                     left: {{ (c+0.5) * (100 / cols) }}%;">
@@ -131,7 +131,7 @@ function loadBoulder() {
     body: JSON.stringify({name})
   }).then(res => res.json())
     .then(data => {
-      setHolds(data.holds);
+      setHolds(data.hold_idxs);
       document.getElementById("boulderDifficulty").value = data.difficulty;
       document.getElementById("boulderSave").disabled = true;
     });
@@ -143,18 +143,18 @@ function clearBoulder() {
     headers: {"Content-Type": "application/json"}
   }).then(res => res.json())
     .then(data => {
-      setHolds(data.holds);
+      setHolds(data.hold_idxs);
       document.getElementById("boulderDifficulty").value = "";
       document.getElementById("boulderSave").disabled = true;
     });
 }
 
-function setHolds(holds)
+function setHolds(hold_idxs)
 {
-  if (holds) {
+  if (hold_idxs) {
     document.querySelectorAll(".cell").forEach(cell => {
       const r = parseInt(cell.dataset.row), c = parseInt(cell.dataset.col);
-      const state = holds[r][c];
+      const state = hold_idxs[r][c];
       const stateNames = {{ states|tojson }};
       cell.className = "cell " + stateNames[state];
     });
