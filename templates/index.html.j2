@@ -1,5 +1,5 @@
-{% set rows = hold_idxs|length %}
-{% set cols = hold_idxs[0]|length %}
+{% set rows = initial_hold_idxs|length %}
+{% set cols = initial_hold_idxs[0]|length %}
 {% set hold_types = hold_colors.keys() | list %}
 
 <!DOCTYPE html>
@@ -60,7 +60,7 @@
     <img src="{{ url_for('static', filename='wall.jpg') }}">
     {% for r in range(rows) %}
       {% for c in range(cols) %}
-        <div class="hold {{ hold_types[hold_idxs[r][c]] }}"
+        <div class="hold {{ hold_types[initial_hold_idxs[r][c]] }}"
              data-row="{{ r }}" data-col="{{ c }}"
              style="top: {{ (r+0.5) * (100 / rows) }}%;
                     left: {{ (c+0.5) * (100 / cols) }}%;">
