@@ -158,7 +158,8 @@ function setHolds(hold_idxs)
     document.querySelectorAll(".hold").forEach(hold => {
       const r = parseInt(hold.dataset.row), c = parseInt(hold.dataset.col);
       const hold_idx = hold_idxs[r][c];
-      hold.className = "hold " + hold_types[hold_idx];
+      const hold_types_js = {{ hold_types | tojson }};
+      hold.className = "hold " + hold_types_js[hold_idx];
     });
   }
 }
