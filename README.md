@@ -13,7 +13,7 @@ sudo apt install python3-dev
 4. Setup virtual environment in the checkout directory
 ```
 python -m venv .venv
-./.venv/bin/pip install flask rpi_ws281x adafruit-circuitpython-neopixel adafruit-circuitpython-led-animation ruamel.yaml numpy
+./.venv/bin/pip install -r requirements.txt
 ```
 
 5. Automatically start the board app by calling `sudo crontab -e` and adding this line:
