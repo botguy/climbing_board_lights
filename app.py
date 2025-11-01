@@ -73,7 +73,7 @@ else:
 @app.route("/")
 def index():
     update_led_grid()
-    return render_template("index.html.j2", initial_hold_idxs=hold_idxs, hold_colors=HOLD_COLORS, boulders=list(boulders.keys()), config=config)
+    return render_template("index.html.j2", initial_hold_idxs=hold_idxs, hold_colors=HOLD_COLORS, initial_boulders=boulders, config=config)
 
 @app.route("/set_hold", methods=["POST"])
 def set_hold():
@@ -91,7 +91,7 @@ def save_boulder():
     boulders[name] = {"difficulty": difficulty, "hold_idxs": deepcopy(hold_idxs)}
     with open(BOULDERS_FILE, "w") as f:
         yaml.dump(boulders, f)
-    return jsonify({"status": "saved", "boulders": list(boulders.keys())})
+    return jsonify({"status": "saved", "boulders": {name: data["difficulty"] for name, data in boulders.items()} })
 
 @app.route("/load", methods=["POST"])
 def load_boulder():

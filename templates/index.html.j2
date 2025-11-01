@@ -147,8 +147,8 @@
     <input type="number" id="boulderDifficulty" placeholder="Difficulty" min="0">
     <button onclick="saveBoulder()" id="boulderSave">Save</button>
     <select id="boulderSelect" onchange="loadBoulder()">
-      {% for name in boulders %}
-        <option value="{{ name }}">{{ name }}</option>
+      {% for name, data in initial_boulders.items() %}
+        <option value="{{ name }}">{{ name }} - d{{data.difficulty}}</option>
       {% endfor %}
     </select>
   </div>
@@ -190,9 +190,9 @@ function saveBoulder() {
     .then(data => {
       let sel = document.getElementById("boulderSelect");
       sel.innerHTML = "";
-      data.boulders.forEach(boulder => {
+      Object.entries(data.boulders).forEach(([name, difficulty]) => {
         let opt = document.createElement("option");
-        opt.value = boulder; opt.textContent = boulder;
+        opt.value = name; opt.textContent = `${name} - d${difficulty}`;
         sel.appendChild(opt);
       });
       document.getElementById("boulderSave").disabled = true;
