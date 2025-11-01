@@ -5,21 +5,80 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Climbing Board</title>
   <style>
     body {
       font-family: sans-serif;
       text-align: center;
     }
-    button, select, input, label {
-      font-size: 1rem;
-      min-height: 44px;
-      min-width: 44px;
-      padding: 0.6em 1.2em;
-      line-height: 1.4;
-      border-radius: 0.5em;
-      box-sizing: border-box;
+    .navbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: blueviolet;
+      color: white;
+      padding: 10px 20px;
+    }
+    .logo {
+      font-size: 1.5em;
+    }
+    .nav-links {
+      list-style: none;
+      display: flex;
+      gap: 20px;
+    }
+    .nav-links li a {
+      color: white;
+      text-decoration: none;
+      font-weight: bold;
+    }
+    .hamburger {
+      display: none;
+      flex-direction: column;
+      justify-content: space-between;
+      width: 25px;
+      height: 18px;
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 0;
+    }
+    .bar {
+      height: 3px;
+      width: 100%;
+      background-color: white;
+      border-radius: 2px;
+      transition: all 0.3s ease;
+    }
+    @media (max-width: 768px) {
+      .hamburger {
+        display: flex;
+      }
+      .nav-links {
+        display: none;
+        flex-direction: column;
+        background: blueviolet;
+        width: 94%;
+        text-align: center;
+        position: absolute;
+        top: 60px;
+        left: 3%;
+        z-index: 10;
+        padding: 10px 0;
+      }
+      .nav-links.active {
+        display: flex;
+      }
+    }
+    .hamburger.active .bar:nth-child(1) {
+      transform: rotate(45deg) translate(5px, 5px);
+    }
+    .hamburger.active .bar:nth-child(2) {
+      opacity: 0;
+    }
+    .hamburger.active .bar:nth-child(3) {
+      transform: rotate(-45deg) translate(5px, -5px);
     }
     .board {
       position: relative;
@@ -50,7 +109,21 @@
   </style>
 </head>
 <body>
-  <h1>Climbing Board</h1>
+  <nav class="navbar">
+    <div class="logo">Climbing Board</div>
+    <button class="hamburger" id="hamburger" onclick="hamburgerMenu()">
+      <span class="bar"></span>
+      <span class="bar"></span>
+      <span class="bar"></span>
+    </button>
+    <ul class="nav-links" id="nav-links">
+      <li><a href="#">Home</a></li>
+      <li><a href="#">Foo</a></li>
+      <li><a href="#">Bar</a></li>
+      <li><a href="#">Baz</a></li>
+      <li><a href="#">Settings</a></li>
+    </ul>
+  </nav>
 
   <div style="margin-top:20px;">
     <button onclick="clearBoulder()">Clear</button>
@@ -117,9 +190,9 @@ function saveBoulder() {
     .then(data => {
       let sel = document.getElementById("boulderSelect");
       sel.innerHTML = "";
-      data.boulders.forEach(p => {
+      data.boulders.forEach(boulder => {
         let opt = document.createElement("option");
-        opt.value = p; opt.textContent = p;
+        opt.value = boulder; opt.textContent = boulder;
         sel.appendChild(opt);
       });
       document.getElementById("boulderSave").disabled = true;
@@ -162,6 +235,12 @@ function setHolds(hold_idxs)
       hold.className = "hold " + hold_types_js[hold_idx];
     });
   }
+}
+
+function hamburgerMenu()
+{
+  document.getElementById('hamburger').classList.toggle('active');
+  document.getElementById('nav-links').classList.toggle('active');;
 }
 
 function setBrightness()
