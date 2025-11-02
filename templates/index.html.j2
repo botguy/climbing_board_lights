@@ -117,11 +117,8 @@
       <span class="bar"></span>
     </button>
     <ul class="nav-links" id="nav-links">
-      <li><a href="#">Home</a></li>
-      <li><a href="#">Foo</a></li>
-      <li><a href="#">Bar</a></li>
-      <li><a href="#">Baz</a></li>
-      <li><a href="#">Settings</a></li>
+      {# <li><a href="#">Home</a></li> #}
+      <button onclick="document.getElementById('settings').showModal()">Settings</button>
     </ul>
   </nav>
 
@@ -153,10 +150,14 @@
     </select>
   </div>
 
-  <div style="margin-top:20px;">
-    <label for="brightness">Brightness:</label>
-    <input type="range" id="brightness" name="brightness" min="0" max="1" value="{{ config.brightness }}", step="0.1", oninput="setBrightness()">
-  </div>
+  <dialog id="settings">
+    <h2>Settings</h2>
+    <div>
+      <label for="brightness">Brightness:</label>
+      <input type="range" id="brightness" name="brightness" min="0" max="1" value="{{ config.brightness }}", step="0.1", oninput="setBrightness()">
+    </div>
+    <button type="button" onclick="document.getElementById('settings').close()">Close</button>
+  </dialog>
 
 <script>
 document.querySelectorAll(".hold").forEach(hold => {
